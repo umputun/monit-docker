@@ -1,5 +1,6 @@
 monit:
  build: build
+ #image: umputun/monit-docker
  restart: always
  container_name: monit
  hostname: monit
