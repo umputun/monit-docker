@@ -1,0 +1,3 @@
+# monit-docker
+Dockerized monit
+
