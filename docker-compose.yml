@@ -1,0 +1,37 @@
+monit:
+ build: build
+ restart: always
+ container_name: monit
+ hostname: monit
+# log_driver: "syslog"
+# log_opt:
+#   syslog-tag: monit
+ 
+ environment:
+  - MHOST
+  - MAIL_SERVER=mail.example.com 
+  - ALERT_EMAIL=user@example.com
+  - MONIT_USER=monit
+  - MONIT_PASS=monit
+ 
+ volumes:
+  - ./monit.conf.d:/etc/monit/conf.d
+  - /var/run/docker.sock:/var/run/docker.sock
+  - /srv:/hostsrv:ro
+  - /data:/data:ro
+  - /cache:/cache:ro
+  - /root:/hostroot:ro
+  - /archive:/archive:ro
+  - /backups:/backups:ro
+  
+
+ cap_add:
+  - SYS_PTRACE
+
+ security_opt:
+  - apparmor:unconfined
+
+ ports:
+  - "9009:9009"
+
+

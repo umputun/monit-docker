@@ -1,0 +1,6 @@
+example:
+ build: .
+ container_name: example
+ 
+ volumes_from:
+  - monit

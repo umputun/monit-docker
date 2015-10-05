@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+
+import logging
+import sys
+from plumbum import cli
+from plumbum import local
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+
+
+class CheckDocker(cli.Application):
+    '''check docker status'''
+    PROGNAME = "check_docker"
+    VERSION = "1.0"
+
+    container_name = None
+
+    @cli.switch("--dbg", help="Enable debug logging")
+    def set_log_level(self):
+        logging.root.setLevel(logging.DEBUG)
+
+    @cli.switch(["--name", "-n"], str, help="Container name", mandatory=True)
+    def set_container_name(self, cname):
+        self.container_name = cname
+        logging.info("container = " + cname)
+
+    def list_containers(self):
+        docker = local["docker"]
+        containers = []
+        for ps_ln in docker["ps"]().split('\n'):
+            if not ps_ln or ps_ln.find("CONTAINER ID") >= 0:
+                continue
+            elems = ps_ln.split()
+            containers.append({"id": elems[0], "name": elems[len(elems)-1]})
+        return containers
+
+    def main(self):
+        running_containers = self.list_containers()
+        found = [element for element in running_containers if element['name'] == self.container_name]
+
+        if not found:
+            logging.error("%s not running", self.container_name)
+            sys.exit(1)
+
+        logging.debug("all good")
+
+if __name__ == "__main__":
+    CheckDocker.run()
